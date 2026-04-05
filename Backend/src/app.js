@@ -10,31 +10,41 @@ app.use(cors())
 app.use(express.json())
 
 
-const upload = multer({storage: multer.memoryStorage()})
+// image.jpg (on user's device)
+//         ↓
+// sent via form-data
+//         ↓
+// multer reads it
+//         ↓
+// stored as buffer in memory
+//         ↓
+// req.file.buffer
 
-app.post("/create-post", upload.single("image"), async (req, res)=> {
-  
+const upload = multer({ storage: multer.memoryStorage() })
+
+app.post("/create-post", upload.single("image"), async (req, res) => {
+
 
   const result = await uploadFile(req.file.buffer)
-  
+
   const post = await postModel.create({ // saving url and caption in database
-    image:result.url,
-    caption:req.body.caption
+    image: result.url,
+    caption: req.body.caption
   })
 
   return res.status(201).json({
-    message:"post created successfully",
+    message: "post created successfully",
     post
   })
 })
 
 
-app.get("/posts", async(req,res)=>{
-  
+app.get("/posts", async (req, res) => {
+
   const posts = await postModel.find()
 
   return res.status(200).json({
-    message:"Posts fetched successfully.",
+    message: "Posts fetched successfully.",
     posts
   })
 })
